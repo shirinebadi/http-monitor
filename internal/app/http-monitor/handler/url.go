@@ -23,7 +23,7 @@ func (h *UrlHandler) Send(c echo.Context) error {
 	}
 	username, err := h.Token.Parse(token)
 	if err != nil {
-		fmt.Print("ridi")
+		log.Error(err)
 	}
 	fmt.Print(username)
 
@@ -36,11 +36,11 @@ func (h *UrlHandler) Send(c echo.Context) error {
 
 	fmt.Print("request: ", req)
 
-	url := &model.Url{UrlBody: req.UrlBody, Period: req.Period}
+	url := &model.Url{Body: req.UrlBody, Period: req.Period}
 	fmt.Println("url:", url)
 
 	reqToDB := &model.Request{Username: username}
-	reqToDB.Urls = append(reqToDB.Urls, *url)
+	reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))
 
 	if err := h.RequestI.Add(reqToDB); err != nil {
 		log.Error(err)
