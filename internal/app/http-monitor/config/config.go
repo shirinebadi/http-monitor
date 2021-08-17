@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/spf13/viper"
 	"gopkg.in/go-playground/validator.v9"
@@ -23,8 +22,8 @@ type (
 	}
 
 	JWT struct {
-		Secret     string        `mapstructure:"secret"`
-		Expiration time.Duration `mapstructure:"expiration"`
+		Secret     string `mapstructure:"secret"`
+		Expiration int    `mapstructure:"expiration"`
 	}
 
 	Server struct {

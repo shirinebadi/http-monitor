@@ -1,6 +1,6 @@
 package request
 
 type Url struct {
-	UrlBody string
-	Period int
+	UrlBody string `json:"url"`
+	Period  int    `json:"period"`
 }

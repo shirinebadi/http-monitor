@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -19,10 +20,14 @@ func main(cfg config.Config) {
 
 	userI := db.Mydb{DB: myDB}
 	e := echo.New()
-	user := handler.UserHandler{UserI: &userI}
+	token := handler.Token{Cfg: cfg}
+	fmt.Print("aslesheee: ", token.Cfg.JWT.Expiration)
+	user := handler.UserHandler{UserI: &userI, Token: token}
+	url := handler.UrlHandler{RequestI: &userI, Token: token}
 
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)
+	e.POST("/request", url.Send)
 
 	address := cfg.Server.Address
 
@@ -33,7 +38,6 @@ func main(cfg config.Config) {
 }
 
 func Register(root *cobra.Command, cfg config.Config) {
-	print("bye")
 	runServer := &cobra.Command{
 		Use:   "server",
 		Short: "server for container scheduling",

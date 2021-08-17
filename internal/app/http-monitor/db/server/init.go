@@ -9,7 +9,7 @@ import (
 )
 
 func NewDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("poooo.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +17,7 @@ func NewDB() (*gorm.DB, error) {
 }
 
 func migrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&model.User{})
+	err := db.AutoMigrate(&model.User{}, &model.Url{}, &model.Request{})
 	return err
 }
 

@@ -19,3 +19,7 @@ func (d *Mydb) Login(username string, password string) (model.User, error) {
 func (d *Mydb) Register(user *model.User) error {
 	return d.DB.Create(user).Error
 }
+
+func (d *Mydb) Add(request *model.Request) error {
+	return d.DB.Create(request).Error
+}
