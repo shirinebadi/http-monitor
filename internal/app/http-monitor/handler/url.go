@@ -42,8 +42,20 @@ func (h *UrlHandler) Send(c echo.Context) error {
 	reqToDB := &model.Request{Username: username}
 	reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))
 
-	if err := h.RequestI.Add(reqToDB); err != nil {
-		log.Error(err)
+	result, err := h.RequestI.Search(username)
+
+	if err != nil {
+		log.Error("Error in Add: ", err)
+	}
+
+	if result {
+		if err := h.RequestI.Update(reqToDB); err != nil {
+			log.Error("Error in Add: ", err)
+		}
+	} else {
+		if err := h.RequestI.Add(reqToDB); err != nil {
+			log.Error("Error in Add: ", err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{

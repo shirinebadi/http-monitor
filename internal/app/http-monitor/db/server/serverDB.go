@@ -23,3 +23,18 @@ func (d *Mydb) Register(user *model.User) error {
 func (d *Mydb) Add(request *model.Request) error {
 	return d.DB.Create(request).Error
 }
+
+func (d *Mydb) Update(request *model.Request) error {
+	return d.DB.Save(request).Error
+}
+
+func (d *Mydb) Search(username string) (bool, error) {
+	var stored model.User
+	if err := d.DB.Where(&model.Request{Username: username}).First(&stored).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}

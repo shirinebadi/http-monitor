@@ -9,4 +9,6 @@ type Request struct {
 
 type RequestI interface {
 	Add(request *Request) error
+	Search(username string) (bool, error)
+	Update(request *Request) error
 }
