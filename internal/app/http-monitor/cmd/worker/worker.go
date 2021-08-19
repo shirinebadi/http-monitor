@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/config"
 	db "github.com/shirinebadi/http-monitor/internal/app/http-monitor/data/db/server"
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/data/nats"
+	"github.com/spf13/cobra"
 )
 
 func main(cfg config.Config) {
@@ -20,26 +22,47 @@ func main(cfg config.Config) {
 	}
 
 	for {
-		url, err := nats.Subscribe()
+		url := nats.Subscribe()
+		fmt.Print("url is: ", url)
+
+		dbI := db.Mydb{DB: myDB}
+
+		address, err := dbI.SearchUrl(url.Url)
 
 		if err != nil {
 			time.Sleep(10 * time.Second)
 			continue
 		}
 
-		dbI := db.Mydb{DB: myDB}
+		fmt.Print("hi", address.Body)
 
-		address, err := dbI.SearchUrl(url.Url)
+		time.Sleep(10 * time.Second)
 
-		resp, err := http.Get(address.Body)
-		if err != nil {
-			log.Print(err)
+		for i := 0; i < 10; i++ {
+			go func() {
+				resp, err := http.Get(address.Body)
+				if err != nil {
+					log.Print(err)
+				}
+
+				url.StatusCode = append(url.StatusCode, int32(resp.StatusCode))
+
+				dbI.Update(&url)
+			}()
 		}
-
-		url.StatusCode = resp.StatusCode
-
-		dbI.Update(&url)
 
 	}
 
+}
+
+func Register(root *cobra.Command, cfg config.Config) {
+	runWorker := &cobra.Command{
+		Use:   "worker",
+		Short: "worker for http monitor",
+		Run: func(cmd *cobra.Command, args []string) {
+			main(cfg)
+		},
+	}
+
+	root.AddCommand(runWorker)
 }

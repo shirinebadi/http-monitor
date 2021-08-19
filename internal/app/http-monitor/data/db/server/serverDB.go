@@ -52,15 +52,15 @@ func (d *Mydb) Update(status *model.Status) error {
 	return d.DB.Save(status).Error
 }
 
-func (d *Mydb) GetFirst() (model.Url, error) {
-	var stored model.Url
+func (d *Mydb) GetFirst() (model.Status, error) {
+	var stored model.Status
 	err := d.DB.First(&stored).Error
 
 	return stored, err
 }
 
-func (d *Mydb) GetRecent(id uint64) (model.Url, error) {
-	var stored model.Url
+func (d *Mydb) GetRecent(id uint64) (model.Status, error) {
+	var stored model.Status
 	err := d.DB.Where("ID > ?", id).First(&stored).Error
 
 	return stored, err

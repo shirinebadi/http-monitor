@@ -20,13 +20,11 @@ func main(cfg config.Config) {
 	e := echo.New()
 
 	userI := db.Mydb{DB: myDB}
-
 	token := handler.Token{Cfg: cfg}
-
 	urlI := db.Mydb{DB: myDB}
 
 	user := handler.UserHandler{UserI: &userI, Token: token}
-	url := handler.UrlHandler{RequestI: &userI, UrlI: &urlI, Token: token}
+	url := handler.UrlHandler{StatusI: &userI, UrlI: &urlI, Token: token}
 
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)

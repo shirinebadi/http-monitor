@@ -10,43 +10,30 @@ import (
 
 type Nats struct {
 	Cfg config.Config
-	Con *nats.Conn
-}
-
-type NatsI interface {
-	Publish(s model.Status)
-	Subscribe() (model.Status, error)
+	Con *nats.EncodedConn
 }
 
 func (n *Nats) Publish(s model.Status) {
-	ec, err := nats.NewEncodedConn(n.Con, nats.GOB_ENCODER)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	err = ec.Publish(n.Cfg.Nats.Topic, s)
+	err := n.Con.Publish(n.Cfg.Nats.Topic, s)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (n *Nats) Subscribe() (model.Status, error) {
-	c, err := nats.NewEncodedConn(n.Con, nats.GOB_ENCODER)
-	if err != nil {
-		log.Fatal(err)
-	}
+func (n *Nats) Subscribe() model.Status {
 
 	newReq := model.Status{}
 
-	defer c.Close()
+	if _, err := n.Con.Subscribe(n.Cfg.Nats.Topic, func(s model.Status) {
 
-	if _, err := c.QueueSubscribe(n.Cfg.Nats.Topic, n.Cfg.Nats.Queue, func(s model.Status) {
-		log.Print(s.Id, " Delivered to Worker")
+		log.Print(s.ID, " Delivered to Worker")
 		newReq = s
 	}); err != nil {
+
 		log.Fatal(err)
 	}
 
-	return newReq, err
+	return newReq
 
 }

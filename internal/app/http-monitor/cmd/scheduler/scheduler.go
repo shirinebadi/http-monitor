@@ -13,10 +13,9 @@ import (
 
 func main(cfg config.Config) {
 	con := nats.New(cfg)
-
 	nats := nats.Nats{Cfg: cfg, Con: con}
 
-	urls := make([]model.Url, 1)
+	urls := make([]model.Status, 0)
 	counter := 1
 
 	myDB, err := db.Init()

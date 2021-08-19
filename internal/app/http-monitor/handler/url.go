@@ -20,11 +20,16 @@ func (h *UrlHandler) Send(c echo.Context) error {
 
 	req := new(request.Url)
 
+	if err := c.Bind(req); err != nil {
+		log.Info("Error in Send: %s", err.Error())
+		return c.NoContent(http.StatusBadRequest)
+	}
+
 	url := new(model.Url)
 	url.Body = req.UrlBody
 	url.Period = req.Period
 
-	if err := h.UrlI.Sound(url); err != nil {
+	if err := h.UrlI.AddUrl(url); err != nil {
 		fmt.Print(err)
 	}
 
@@ -37,11 +42,6 @@ func (h *UrlHandler) Send(c echo.Context) error {
 		log.Error(err)
 	}
 	fmt.Print(username)
-
-	if err := c.Bind(req); err != nil {
-		log.Info("Error in Send: %s", err.Error())
-		return c.NoContent(http.StatusBadRequest)
-	}
 
 	fmt.Print("request: ", req)
 

@@ -7,5 +7,5 @@ type Url struct {
 }
 
 type UrlI interface {
-	Sound(url *Url) error
+	AddUrl(url *Url) error
 }
