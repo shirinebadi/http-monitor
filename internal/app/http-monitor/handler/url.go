@@ -12,6 +12,7 @@ import (
 
 type UrlHandler struct {
 	RequestI model.RequestI
+	UrlI     model.UrlI
 	Token    Token
 }
 
@@ -36,7 +37,14 @@ func (h *UrlHandler) Send(c echo.Context) error {
 
 	fmt.Print("request: ", req)
 
-	url := &model.Url{Body: req.UrlBody, Period: req.Period}
+	url := new(model.Url)
+	url.Body = req.UrlBody
+	url.Period = req.Period
+
+	if err := h.UrlI.Sound(url); err != nil {
+		fmt.Print(err)
+	}
+
 	fmt.Println("url:", url)
 
 	reqToDB := &model.Request{Username: username}
@@ -49,11 +57,13 @@ func (h *UrlHandler) Send(c echo.Context) error {
 	}
 
 	if result {
+		fmt.Print("1")
 		if err := h.RequestI.Update(reqToDB); err != nil {
 			log.Error("Error in Add: ", err)
 		}
 	} else {
-		if err := h.RequestI.Add(reqToDB); err != nil {
+		fmt.Print("2")
+		if err := h.RequestI.Record(reqToDB); err != nil {
 			log.Error("Error in Add: ", err)
 		}
 	}

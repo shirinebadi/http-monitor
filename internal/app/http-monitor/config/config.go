@@ -19,6 +19,8 @@ type (
 	Config struct {
 		JWT    JWT    `mapstructure:"jwt"`
 		Server Server `mapstructure:"server"`
+		Nats   Nats   `mapstructure:"nats"`
+		Common Common `mapstructure:"common"`
 	}
 
 	JWT struct {
@@ -28,6 +30,16 @@ type (
 
 	Server struct {
 		Address string `mapstructure:"address"`
+	}
+
+	Nats struct {
+		Host  string `mapstructure:"host"`
+		Topic string `mapstructure:"topic"`
+		Queue string `mapstructure:"queue"`
+	}
+
+	Common struct {
+		Period int `mapstructure:"period"`
 	}
 )
 

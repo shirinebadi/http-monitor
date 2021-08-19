@@ -27,8 +27,6 @@ func (t *Token) GenerateJWT(user model.User) (string, error) {
 func (t *Token) Parse(token string) (string, error) {
 	claims := jwt.MapClaims{}
 
-	fmt.Println("chi shode?")
-	fmt.Println("token: ", token)
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("There was an error in parsing")

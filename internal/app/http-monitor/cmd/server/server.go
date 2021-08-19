@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/config"
-	db "github.com/shirinebadi/http-monitor/internal/app/http-monitor/db/server"
+	db "github.com/shirinebadi/http-monitor/internal/app/http-monitor/data/db/server"
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/handler"
 	"github.com/spf13/cobra"
 )
@@ -17,11 +17,16 @@ func main(cfg config.Config) {
 		log.Fatal("failed to setup db: %s", err.Error())
 	}
 
-	userI := db.Mydb{DB: myDB}
 	e := echo.New()
+
+	userI := db.Mydb{DB: myDB}
+
 	token := handler.Token{Cfg: cfg}
+
+	urlI := db.Mydb{DB: myDB}
+
 	user := handler.UserHandler{UserI: &userI, Token: token}
-	url := handler.UrlHandler{RequestI: &userI, Token: token}
+	url := handler.UrlHandler{RequestI: &userI, UrlI: &urlI, Token: token}
 
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)
