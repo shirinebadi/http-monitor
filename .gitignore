@@ -1,0 +1,5 @@
+#Token
+*.txt
+
+#DB
+*.db
