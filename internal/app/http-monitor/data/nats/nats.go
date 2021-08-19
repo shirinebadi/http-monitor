@@ -14,27 +14,39 @@ type Nats struct {
 }
 
 type NatsI interface {
-	Publish(u model.Url)
+	Publish(s model.Status)
+	Subscribe() (model.Status, error)
 }
 
-func (n *Nats) Publish(u model.Url) {
+func (n *Nats) Publish(s model.Status) {
 	ec, err := nats.NewEncodedConn(n.Con, nats.GOB_ENCODER)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = ec.Publish(n.Cfg.Nats.Topic, u)
+	err = ec.Publish(n.Cfg.Nats.Topic, s)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (n *Nats) Subscribe() {
+func (n *Nats) Subscribe() (model.Status, error) {
 	c, err := nats.NewEncodedConn(n.Con, nats.GOB_ENCODER)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	newReq := model.Status{}
+
 	defer c.Close()
+
+	if _, err := c.QueueSubscribe(n.Cfg.Nats.Topic, n.Cfg.Nats.Queue, func(s model.Status) {
+		log.Print(s.Id, " Delivered to Worker")
+		newReq = s
+	}); err != nil {
+		log.Fatal(err)
+	}
+
+	return newReq, err
 
 }

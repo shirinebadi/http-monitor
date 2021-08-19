@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -13,8 +12,6 @@ import (
 )
 
 func main(cfg config.Config) {
-
-	fmt.Print("hi")
 	con := nats.New(cfg)
 
 	nats := nats.Nats{Cfg: cfg, Con: con}
@@ -24,7 +21,7 @@ func main(cfg config.Config) {
 
 	myDB, err := db.Init()
 	if err != nil {
-		log.Fatal("failed to setup db: %s", err.Error())
+		log.Fatal("failed to setup db: ", err.Error())
 	}
 
 	dbI := db.Mydb{DB: myDB}
@@ -45,7 +42,7 @@ func main(cfg config.Config) {
 
 			firstId = url
 
-			log.Print("Adding to url: ", url)
+			log.Print("Adding to urls: ", url)
 
 			urls = append(urls, url)
 

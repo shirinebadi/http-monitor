@@ -11,12 +11,22 @@ import (
 )
 
 type UrlHandler struct {
-	RequestI model.RequestI
-	UrlI     model.UrlI
-	Token    Token
+	StatusI model.StatusI
+	UrlI    model.UrlI
+	Token   Token
 }
 
 func (h *UrlHandler) Send(c echo.Context) error {
+
+	req := new(request.Url)
+
+	url := new(model.Url)
+	url.Body = req.UrlBody
+	url.Period = req.Period
+
+	if err := h.UrlI.Sound(url); err != nil {
+		fmt.Print(err)
+	}
 
 	token := c.Request().Header.Get("Token")
 	if token == "" {
@@ -28,8 +38,6 @@ func (h *UrlHandler) Send(c echo.Context) error {
 	}
 	fmt.Print(username)
 
-	req := new(request.Url)
-
 	if err := c.Bind(req); err != nil {
 		log.Info("Error in Send: %s", err.Error())
 		return c.NoContent(http.StatusBadRequest)
@@ -37,36 +45,34 @@ func (h *UrlHandler) Send(c echo.Context) error {
 
 	fmt.Print("request: ", req)
 
-	url := new(model.Url)
-	url.Body = req.UrlBody
-	url.Period = req.Period
-
-	if err := h.UrlI.Sound(url); err != nil {
-		fmt.Print(err)
-	}
-
 	fmt.Println("url:", url)
 
-	reqToDB := &model.Request{Username: username}
-	reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))
+	status := &model.Status{Username: username, Url: url.ID}
 
-	result, err := h.RequestI.Search(username)
-
-	if err != nil {
+	if err := h.StatusI.Record(status); err != nil {
 		log.Error("Error in Add: ", err)
 	}
 
-	if result {
-		fmt.Print("1")
-		if err := h.RequestI.Update(reqToDB); err != nil {
-			log.Error("Error in Add: ", err)
-		}
-	} else {
-		fmt.Print("2")
-		if err := h.RequestI.Record(reqToDB); err != nil {
-			log.Error("Error in Add: ", err)
-		}
-	}
+	// reqToDB := &model.Request{Username: username}
+	// reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))
+
+	// result, err := h.RequestI.Search(username)
+
+	// if err != nil {
+	// 	log.Error("Error in Add: ", err)
+	// }
+
+	// if result {
+	// 	fmt.Print("1")
+	// 	if err := h.RequestI.Update(reqToDB); err != nil {
+	// 		log.Error("Error in Add: ", err)
+	// 	}
+	// } else {
+	// 	fmt.Print("2")
+	// 	if err := h.RequestI.Record(reqToDB); err != nil {
+	// 		log.Error("Error in Add: ", err)
+	// 	}
+	// }
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"url":    req.UrlBody,
