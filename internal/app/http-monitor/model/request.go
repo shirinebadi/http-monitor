@@ -6,9 +6,3 @@ type Request struct {
 	Username string         `gorm:"primaryKey"`
 	Urls     pq.StringArray `gorm:"type:text[]"`
 }
-
-type RequestI interface {
-	Record(request *Request) error
-	Search(username string) (bool, error)
-	Update(request *Request) error
-}
