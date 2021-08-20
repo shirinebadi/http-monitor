@@ -8,4 +8,5 @@ type Url struct {
 
 type UrlI interface {
 	AddUrl(url *Url) error
+	SearchId(url string) ([]Url, error)
 }

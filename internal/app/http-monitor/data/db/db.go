@@ -32,20 +32,30 @@ func (d *Mydb) AddUrl(url *model.Url) error {
 
 func (d *Mydb) SearchUrl(id uint64) (model.Url, error) {
 	var stored model.Url
-	err := d.DB.Where(&model.Status{Url: id}).First(&stored).Error
+	err := d.DB.Where(&model.Url{ID: id}).First(&stored).Error
 
 	return stored, err
 }
 
-func (d *Mydb) Search(username string) (bool, error) {
+func (d *Mydb) SearchId(url string) ([]model.Url, error) {
+	var stored []model.Url
+	err := d.DB.Where(&model.Url{Body: url}).First(&stored).Error
+
+	return stored, err
+}
+
+func (d *Mydb) Search(username string) ([]model.Status, error) {
+	var stored []model.Status
+	err := d.DB.Where(&model.Status{Username: username}).Find(&stored).Error
+
+	return stored, err
+}
+
+func (d *Mydb) SearchByUrl(username string, url uint64) (model.Status, error) {
 	var stored model.Status
-	if err := d.DB.Where(&model.Status{Username: username}).First(&stored).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
+	err := d.DB.Where(&model.Status{Username: username, Url: url}).First(&stored).Error
+
+	return stored, err
 }
 
 func (d *Mydb) Update(status *model.Status) error {

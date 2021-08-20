@@ -5,8 +5,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/config"
-	db "github.com/shirinebadi/http-monitor/internal/app/http-monitor/data/db/server"
+	db "github.com/shirinebadi/http-monitor/internal/app/http-monitor/data/db"
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/handler"
+	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/model"
+	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/scheduler"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +16,7 @@ func main(cfg config.Config) {
 
 	myDB, err := db.Init()
 	if err != nil {
-		log.Fatal("failed to setup db: %s", err.Error())
+		log.Fatal("Failed to setup db: %s", err.Error())
 	}
 
 	e := echo.New()
@@ -23,8 +25,14 @@ func main(cfg config.Config) {
 	token := handler.Token{Cfg: cfg}
 	urlI := db.Mydb{DB: myDB}
 
+	jobs := make(chan model.Status, 20)
+
 	user := handler.UserHandler{UserI: &userI, Token: token}
-	url := handler.UrlHandler{StatusI: &userI, UrlI: &urlI, Token: token}
+	url := handler.UrlHandler{StatusI: &userI, UrlI: &urlI, Token: token, Jobs: jobs}
+
+	scheduler := scheduler.Scheduler{Cfg: cfg, Jobs: jobs}
+
+	go scheduler.Run()
 
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)

@@ -9,11 +9,12 @@ import (
 )
 
 type Nats struct {
-	Cfg config.Config
-	Con *nats.EncodedConn
+	Cfg  config.Config
+	Con  *nats.EncodedConn
+	Jobs chan *model.Status
 }
 
-func (n *Nats) Publish(s model.Status) {
+func (n *Nats) Publish(s *model.Status) {
 
 	err := n.Con.Publish(n.Cfg.Nats.Topic, s)
 	if err != nil {
@@ -21,19 +22,15 @@ func (n *Nats) Publish(s model.Status) {
 	}
 }
 
-func (n *Nats) Subscribe() model.Status {
+func (n *Nats) Subscribe() {
 
-	newReq := model.Status{}
-
-	if _, err := n.Con.Subscribe(n.Cfg.Nats.Topic, func(s model.Status) {
+	if _, err := n.Con.Subscribe(n.Cfg.Nats.Topic, func(s *model.Status) {
 
 		log.Print(s.ID, " Delivered to Worker")
-		newReq = s
+		n.Jobs <- s
 	}); err != nil {
 
 		log.Fatal(err)
 	}
-
-	return newReq
 
 }

@@ -14,10 +14,10 @@ type UrlHandler struct {
 	StatusI model.StatusI
 	UrlI    model.UrlI
 	Token   Token
+	Jobs    chan model.Status
 }
 
 func (h *UrlHandler) Send(c echo.Context) error {
-
 	req := new(request.Url)
 
 	if err := c.Bind(req); err != nil {
@@ -37,21 +37,19 @@ func (h *UrlHandler) Send(c echo.Context) error {
 	if token == "" {
 		return c.NoContent(http.StatusUnauthorized)
 	}
+
 	username, err := h.Token.Parse(token)
 	if err != nil {
 		log.Error(err)
 	}
-	fmt.Print(username)
-
-	fmt.Print("request: ", req)
-
-	fmt.Println("url:", url)
 
 	status := &model.Status{Username: username, Url: url.ID}
 
 	if err := h.StatusI.Record(status); err != nil {
 		log.Error("Error in Add: ", err)
 	}
+
+	h.Jobs <- *status
 
 	// reqToDB := &model.Request{Username: username}
 	// reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))

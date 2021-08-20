@@ -16,6 +16,7 @@ type Status struct {
 
 type StatusI interface {
 	Record(status *Status) error
-	Search(username string) (bool, error)
+	Search(username string) ([]Status, error)
 	Update(status *Status) error
+	SearchByUrl(username string, url uint64) (Status, error)
 }
