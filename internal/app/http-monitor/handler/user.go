@@ -23,13 +23,12 @@ func (h *UserHandler) Register(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	userToDB := &model.User{Username: req.Username, Password: req.Password}
+	userToDB := model.NewUser(req.Username, req.Password)
 	if err := h.UserI.Register(userToDB); err != nil {
 		log.Error(err)
 	}
 
 	token, _ := h.Token.GenerateJWT(*userToDB)
-	print(token)
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"token": token,

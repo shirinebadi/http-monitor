@@ -11,7 +11,7 @@ import (
 )
 
 type ResponseHandler struct {
-	cfg     config.Config
+	Cfg     config.Config
 	StatusI model.StatusI
 	Token   Token
 	UrlI    model.UrlI

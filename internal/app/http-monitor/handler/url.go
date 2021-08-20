@@ -25,10 +25,7 @@ func (h *UrlHandler) Send(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	url := new(model.Url)
-	url.Body = req.UrlBody
-	url.Period = req.Period
-
+	url := model.NewUrl(req.UrlBody, req.Threshold)
 	if err := h.UrlI.AddUrl(url); err != nil {
 		fmt.Print(err)
 	}
@@ -43,34 +40,12 @@ func (h *UrlHandler) Send(c echo.Context) error {
 		log.Error(err)
 	}
 
-	status := &model.Status{Username: username, Url: url.ID}
-
+	status := model.NewStatus(username, url.ID)
 	if err := h.StatusI.Record(status); err != nil {
 		log.Error("Error in Add: ", err)
 	}
 
 	h.Jobs <- *status
-
-	// reqToDB := &model.Request{Username: username}
-	// reqToDB.Urls = append(reqToDB.Urls, fmt.Sprint(url.ID))
-
-	// result, err := h.RequestI.Search(username)
-
-	// if err != nil {
-	// 	log.Error("Error in Add: ", err)
-	// }
-
-	// if result {
-	// 	fmt.Print("1")
-	// 	if err := h.RequestI.Update(reqToDB); err != nil {
-	// 		log.Error("Error in Add: ", err)
-	// 	}
-	// } else {
-	// 	fmt.Print("2")
-	// 	if err := h.RequestI.Record(reqToDB); err != nil {
-	// 		log.Error("Error in Add: ", err)
-	// 	}
-	// }
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"url":    req.UrlBody,

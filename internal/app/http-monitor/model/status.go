@@ -14,6 +14,12 @@ type Status struct {
 	Time       time.Time
 }
 
+func NewStatus(username string, url uint64) *Status {
+	status := &Status{Username: username, Url: url}
+
+	return status
+}
+
 type StatusI interface {
 	Record(status *Status) error
 	Search(username string) ([]Status, error)
