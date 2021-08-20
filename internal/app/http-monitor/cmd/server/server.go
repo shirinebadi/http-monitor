@@ -29,6 +29,7 @@ func main(cfg config.Config) {
 
 	user := handler.UserHandler{UserI: &userI, Token: token}
 	url := handler.UrlHandler{StatusI: &userI, UrlI: &urlI, Token: token, Jobs: jobs}
+	response := handler.ResponseHandler{Cfg: cfg, StatusI: &userI, Token: token, UrlI: &urlI}
 
 	scheduler := scheduler.Scheduler{Cfg: cfg, Jobs: jobs}
 
@@ -37,6 +38,9 @@ func main(cfg config.Config) {
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)
 	e.POST("/request", url.Send)
+
+	e.POST("/result", response.Get)
+	e.POST("/result/url", response.Post)
 
 	address := cfg.Server.Address
 
