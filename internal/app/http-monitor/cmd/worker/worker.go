@@ -14,20 +14,16 @@ import (
 
 func main(cfg config.Config) {
 	ch := make(chan *model.Status)
-	con := nats.New(cfg)
-	nats := nats.Nats{Cfg: cfg, Con: con, Jobs: ch}
+	cn := nats.New(cfg)
+	nats := nats.Nats{Cfg: cfg, Cn: cn, Jobs: ch}
 
 	myDB, err := db.Init()
 	if err != nil {
-		log.Fatal("failed to setup db: %s", err.Error())
+		log.Fatal("failed to setup db: ", err.Error())
 	}
 
 	go func() {
-		for {
-			time.Sleep(10 * time.Second)
-
-			nats.Subscribe()
-		}
+		nats.Subscribe()
 	}()
 
 	go func() {

@@ -18,8 +18,8 @@ type Scheduler struct {
 func (s *Scheduler) Run() {
 	counter := 1
 
-	con := nats.New(s.Cfg)
-	nats := nats.Nats{Cfg: s.Cfg, Con: con}
+	cn := nats.New(s.Cfg)
+	nats := nats.Nats{Cfg: s.Cfg, Cn: cn}
 
 	urls := make([]model.Status, 0)
 
@@ -45,8 +45,6 @@ func (s *Scheduler) Run() {
 				fmt.Println(counter, " ", i)
 
 				if counter == s.Cfg.Common.Period {
-
-					fmt.Print("push")
 
 					nats.Publish(&url)
 

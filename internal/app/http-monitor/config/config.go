@@ -35,7 +35,7 @@ type (
 	Nats struct {
 		Host  string `mapstructure:"host"`
 		Topic string `mapstructure:"topic"`
-		Queue string `mapstructure:"queue"`
+		Name  string `mapstructure:"name"`
 	}
 
 	Common struct {

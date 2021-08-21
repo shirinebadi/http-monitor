@@ -1,6 +1,7 @@
 package nats
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/nats-io/nats.go"
@@ -10,13 +11,13 @@ import (
 
 type Nats struct {
 	Cfg  config.Config
-	Con  *nats.EncodedConn
+	Cn   nats.JetStreamContext
 	Jobs chan *model.Status
 }
 
 func (n *Nats) Publish(s *model.Status) {
-
-	err := n.Con.Publish(n.Cfg.Nats.Topic, s)
+	StatusJson, _ := json.Marshal(&s)
+	_, err := n.Cn.Publish(n.Cfg.Nats.Topic, StatusJson)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,12 +25,20 @@ func (n *Nats) Publish(s *model.Status) {
 
 func (n *Nats) Subscribe() {
 
-	if _, err := n.Con.Subscribe(n.Cfg.Nats.Topic, func(s *model.Status) {
+	if _, err := n.Cn.Subscribe(n.Cfg.Nats.Topic, func(msg *nats.Msg) {
+		var s model.Status
+		msg.Ack()
+
+		err := json.Unmarshal(msg.Data, &s)
+		if err != nil {
+			log.Fatal("Error in nats subscribe: ", err)
+		}
 
 		log.Print(s.ID, " Delivered to Worker")
-		n.Jobs <- s
-	}); err != nil {
 
+		n.Jobs <- &s
+
+	}, nats.Durable("monitor"), nats.ManualAck()); err != nil {
 		log.Fatal(err)
 	}
 

@@ -9,7 +9,7 @@ jwt:
 nats:
   host: nats://localhost:4222
   topic: url
-  queue: httpMonitor
+  name: httpMonitor
 common:
   period: 3
   `
