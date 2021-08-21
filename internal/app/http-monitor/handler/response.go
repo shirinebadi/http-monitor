@@ -33,10 +33,16 @@ func (h *ResponseHandler) Get(c echo.Context) error {
 		log.Error("Error in Response, Get:", err)
 	}
 
-	keyVal := make(map[uint64][]int32)
+	keyVal := make(map[string][]int32)
 
 	for _, s := range totalStatus {
-		keyVal[s.Url] = s.StatusCode
+		body, err := h.UrlI.SearchUrl(s.ID)
+		if err != nil {
+			log.Error("Error in Get Results: ", err)
+			continue
+		}
+
+		keyVal[body.Body] = s.StatusCode
 	}
 
 	return c.JSON(http.StatusOK, keyVal)
@@ -76,5 +82,47 @@ func (h *ResponseHandler) Post(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusBadRequest)
+
+}
+
+func (h *ResponseHandler) Alert(c echo.Context) error {
+	alert := 0
+	alerts := make(map[string]bool)
+
+	token := c.Request().Header.Get("Token")
+	if token == "" {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
+	username, err := h.Token.Parse(token)
+	if err != nil {
+		log.Error(err)
+	}
+
+	totalStatus, err := h.StatusI.Search(username)
+	if err != nil {
+		log.Error("Error in Response, Get:", err)
+	}
+
+	for _, s := range totalStatus {
+		alert = 0
+		body, err := h.UrlI.SearchUrl(s.ID)
+		if err != nil {
+			log.Error("Error in Alert: ", err)
+		}
+
+		statusCode := s.StatusCode
+		for _, c := range statusCode {
+			if c != int32(400) {
+				alert++
+			}
+		}
+
+		if alert >= body.Threshold {
+			alerts[body.Body] = true
+		}
+	}
+
+	return c.JSON(http.StatusOK, alerts)
 
 }

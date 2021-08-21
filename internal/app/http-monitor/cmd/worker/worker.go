@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -24,41 +23,42 @@ func main(cfg config.Config) {
 	}
 
 	go func() {
-		nats.Subscribe()
-		time.Sleep(20 * time.Second)
+		for {
+			time.Sleep(10 * time.Second)
+
+			nats.Subscribe()
+		}
 	}()
 
 	go func() {
+		dbI := db.Mydb{DB: myDB}
+
 		for {
 
-			for u := range ch {
+			u := <-ch
 
-				dbI := db.Mydb{DB: myDB}
+			address, err := dbI.SearchUrl(u.Url)
 
-				address, err := dbI.SearchUrl(u.Url)
-
-				if err != nil {
-					time.Sleep(10 * time.Second)
-					continue
-				}
-
+			if err != nil {
 				time.Sleep(10 * time.Second)
-
-				for i := 0; i < 10; i++ {
-					go func() {
-						resp, err := http.Get(address.Body)
-						if err != nil {
-							log.Println(err)
-						} else {
-							u.StatusCode = append(u.StatusCode, int32(resp.StatusCode))
-							fmt.Println(u)
-
-							dbI.Update(u)
-						}
-					}()
-				}
+				continue
 			}
 
+			for i := 0; i < 10; i++ {
+				go func() {
+					resp, err := http.Get(address.Body)
+					if err != nil {
+						u.StatusCode = append(u.StatusCode, int32(500))
+					} else {
+						u.StatusCode = append(u.StatusCode, int32(resp.StatusCode))
+					}
+
+					if err := dbI.Update(u); err != nil {
+						log.Print(err)
+					}
+
+				}()
+			}
 		}
 
 	}()

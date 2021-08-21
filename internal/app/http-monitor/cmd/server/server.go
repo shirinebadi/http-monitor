@@ -16,7 +16,7 @@ func main(cfg config.Config) {
 
 	myDB, err := db.Init()
 	if err != nil {
-		log.Fatal("Failed to setup db: %s", err.Error())
+		log.Fatal("Failed to setup db: ", err.Error())
 	}
 
 	e := echo.New()
@@ -38,9 +38,9 @@ func main(cfg config.Config) {
 	e.POST("/register", user.Register)
 	e.POST("/login", user.Login)
 	e.POST("/request", url.Send)
-
-	e.POST("/result", response.Get)
+	e.GET("/result", response.Get)
 	e.POST("/result/url", response.Post)
+	e.GET("/alerts", response.Alert)
 
 	address := cfg.Server.Address
 

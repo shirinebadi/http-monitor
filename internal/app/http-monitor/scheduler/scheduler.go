@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -24,22 +25,30 @@ func (s *Scheduler) Run() {
 
 	go func() {
 		for {
-
 			deliveredJob := <-s.Jobs
 
 			log.Print("New Url Added:\n ", deliveredJob)
 
 			urls = append(urls, deliveredJob)
 
+		}
+	}()
+
+	go func() {
+		for {
+
+			if counter > s.Cfg.Common.Period {
+				counter = 1
+			}
+
 			for i, url := range urls {
+				fmt.Println(counter, " ", i)
 
 				if counter == s.Cfg.Common.Period {
 
-					nats.Publish(&url)
+					fmt.Print("push")
 
-					if i == len(urls)-1 {
-						counter = 1
-					}
+					nats.Publish(&url)
 
 				}
 

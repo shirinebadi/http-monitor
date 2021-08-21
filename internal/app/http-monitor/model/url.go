@@ -15,4 +15,5 @@ func NewUrl(body string, threshold int) *Url {
 type UrlI interface {
 	AddUrl(url *Url) error
 	SearchId(url string) ([]Url, error)
+	SearchUrl(id uint64) (Url, error)
 }
