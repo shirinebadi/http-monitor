@@ -113,7 +113,7 @@ func (h *ResponseHandler) Alert(c echo.Context) error {
 
 		statusCode := s.StatusCode
 		for _, c := range statusCode {
-			if c != int32(400) {
+			if c != int32(200) {
 				alert++
 			}
 		}

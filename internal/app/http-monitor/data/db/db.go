@@ -62,9 +62,9 @@ func (d *Mydb) Update(status *model.Status) error {
 	return d.DB.Save(status).Error
 }
 
-func (d *Mydb) GetFirst() (model.Status, error) {
+func (d *Mydb) GetFirst(id uint64) (model.Status, error) {
 	var stored model.Status
-	err := d.DB.First(&stored).Error
+	err := d.DB.Where(&model.Status{ID: id}).First(&stored).Error
 
 	return stored, err
 }
