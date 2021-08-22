@@ -3,6 +3,7 @@ package worker
 import (
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/shirinebadi/http-monitor/internal/app/http-monitor/config"
@@ -13,6 +14,9 @@ import (
 )
 
 func main(cfg config.Config) {
+
+	var wg = &sync.WaitGroup{}
+
 	ch := make(chan *model.Status)
 	cn := nats.New(cfg)
 	nats := nats.Nats{Cfg: cfg, Cn: cn, Jobs: ch}
@@ -22,11 +26,15 @@ func main(cfg config.Config) {
 		log.Fatal("failed to setup db: ", err.Error())
 	}
 
+	wg.Add(1)
+
 	go func() {
+
 		nats.Subscribe()
 	}()
 
 	go func() {
+
 		dbI := db.Mydb{DB: myDB}
 
 		for {
@@ -59,6 +67,8 @@ func main(cfg config.Config) {
 		}
 
 	}()
+
+	wg.Wait()
 }
 
 func Register(root *cobra.Command, cfg config.Config) {
