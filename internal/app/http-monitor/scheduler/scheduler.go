@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -40,7 +41,8 @@ func (s *Scheduler) Run() {
 				counter = 1
 			}
 
-			for _, url := range urls {
+			for i, url := range urls {
+				fmt.Println(counter, " ", i)
 
 				if counter == s.Cfg.Common.Period {
 

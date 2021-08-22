@@ -27,13 +27,11 @@ func main(cfg config.Config) {
 	}()
 
 	go func() {
-
 		dbI := db.Mydb{DB: myDB}
 
 		for {
 
 			u := <-ch
-			*u, _ = dbI.GetFirst(u.ID)
 
 			address, err := dbI.SearchUrl(u.Url)
 
@@ -60,6 +58,8 @@ func main(cfg config.Config) {
 		}
 
 	}()
+	for {
+	}
 }
 
 func Register(root *cobra.Command, cfg config.Config) {

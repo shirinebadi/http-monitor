@@ -113,15 +113,13 @@ func (h *ResponseHandler) Alert(c echo.Context) error {
 
 		statusCode := s.StatusCode
 		for _, c := range statusCode {
-			if c != int32(200) {
+			if c != int32(400) {
 				alert++
 			}
 		}
 
 		if alert >= body.Threshold {
 			alerts[body.Body] = true
-		} else {
-			alerts[body.Body] = false
 		}
 	}
 

@@ -2,7 +2,7 @@ package config
 
 const defaultConfig = `
 server:
-  address: :21345
+  address: :61432
 jwt:
   secret: jdnfksdmfks
   expiration: 60
