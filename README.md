@@ -2,10 +2,6 @@
 
 A service to monitor registered endpoints by sending 10 request in a constant time steps. Updating the status code of each url, http monitor service logs an alert if the number of errors reache the given threshold.
 
-# System Design
-
-![system diagram](https://github.com/shirinebadi/http-monitor/blob/master/design.png?raw=true)
-
 # Run
 
 ```
